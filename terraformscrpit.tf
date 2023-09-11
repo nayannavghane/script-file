@@ -8,16 +8,29 @@ terraform {
 }
 
 provider "aws" {
-  region     = "us-west-2"
-  access_key = "my-access-key"
-  secret_key = "my-secret-key"
+  region     = "ap-south-1"
+  access_key = "AKIAQNBZPI2DGO7FZJUD"
+  secret_key = "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"
+}
+
+# Create a VPC
+resource "aws_vpc" "my_vpc" {
+  cidr_block = "10.0.0.0/16"
+}
+
+# Create a subnet in the VPC
+resource "aws_subnet" "my_subnet" {
+  vpc_id     = aws_vpc.my_vpc.id
+  cidr_block = "10.0.0.0/24"
 }
 
 resource "aws_instance" "web" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
+  count         = 2
+  ami           = "ami-02bb7d8191b50f4bb"
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.my_subnet.id
 
   tags = {
-    Name = "HelloWorld"
+    Name = "HelloWorld-${count.index}"
   }
 }
